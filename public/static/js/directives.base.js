@@ -86,7 +86,8 @@ define('Class', function (require, exports, module) {
 
 
 define('base.dir', function (require, exports, module) {
-	var helper = require('dir.helper');
+	var helper = require('dir.helper'),
+		uniqueID = 0;
 
 	module.exports = require('Class').extend({
 		on : function (event, classes, fnName) {
@@ -98,10 +99,10 @@ define('base.dir', function (require, exports, module) {
 			}
 		},
 		callParents : function (fnName, data, deep) {
-			helper.callParents(this.$el, fnName, data, deep);
+			return helper.callParents(this.$el, fnName, data, deep);
 		},
 		callChilds : function (fnName, data, deep) {
-			helper.callChilds(this.$el, fnName, data, deep);
+			return helper.callChilds(this.$el, fnName, data, deep);
 		},
 		destroy : function () {
 			this.$el.off();
@@ -110,6 +111,7 @@ define('base.dir', function (require, exports, module) {
 			this.$el = $el;
 			this.type = options.dir;
 			this.options = options;
+			this._id = uniqueID++;
 			$el.addClass('d-' + options.dir);
 		}
 	});
@@ -123,7 +125,7 @@ define('input', function (require, exports, module) {
 	module.exports = defaultDir.extend({
 		init : function ($el, options) {
 			var self = this;
-			self._super($el, options);
+			self._super && self._super($el, options);
 			self.initValue = self.getValue();
 		},
 		events : function () {

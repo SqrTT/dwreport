@@ -1,6 +1,11 @@
 /* global define */
+
+define('dirs', function (require, exports, module) {
+	module.exports = require('app.directives');
+});
+
 define('dir.helper', function (require, exports, module) {
-	module.exports = require('app.directives').helpers;
+	module.exports = require('dirs').helpers;
 });
 
 define('app.directives', function (require, exports, module, undefined) {
@@ -20,7 +25,7 @@ define('app.directives', function (require, exports, module, undefined) {
 		$ = require('$'),
 		log = require('log'),
 		document = require('document');
-	
+
 
 	log.info('Init directives controller');
 
@@ -113,7 +118,7 @@ define('app.directives', function (require, exports, module, undefined) {
 		} else {
 			newDir = $tmpEl.data(DIR_ATTR_INITED);
 		}
-		
+
 		if (newDir.parent) {
 			newDir.parent.childs.push(newDir);
 		}
@@ -134,20 +139,20 @@ define('app.directives', function (require, exports, module, undefined) {
 				d.initedEvents = true;
 			}
 		}, 1e9);
-	
+
 	}
-	
+
 	function detachEl(el) {
 		var $el = $(el),
 			$tmpEl = $el;
-		
+
 		while (!isInitedDirectiveEl($tmpEl) && $tmpEl.length) {
 			$tmpEl = $tmpEl.parent();
 		}
 		callChilds($tmpEl, 'destroy', undefined, 1e9);
 	}
-	
-	
+
+
 
 	function initDirective(dir) {
 		if (dir && dir.dir && !dir.dirInstance && !isInitedDirectiveEl(dir.dir)) {
