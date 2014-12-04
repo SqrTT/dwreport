@@ -12,7 +12,7 @@
 	</head>
 	<body>
 		<div class="row">
-			<h2 class="col-md-6">Demandware Scripts validator</h2>
+			<h2 class="col-md-6">Scripts validator</h2>
 			<div data-dir="config-dir" class="col-md-6">
 				<div class="js-config">Config</div>
 				<div style="display:none;" class="js-projectlist">
@@ -20,10 +20,16 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div data-dir="projects" class="col-md-1">Projects</div>
+		<div class="row" data-dir="projects-tab">
+			<div class="col-md-1"><b>Projects</b></div>
 		</div>
-		<table class="table" data-dir="reporter">
+		<div class="row" data-dir="project-view">
+
+		</div>
+
+
+		<!--
+		<table class="table" data-dirw="reporter">
 			<thead >
 				<th >File</th>
 				<th>Data</th>
@@ -32,6 +38,7 @@
 
 			</tbody>
 		</table>
+	-->
 
 <script type="text/template" id="tbl-row">
 	<tr >
@@ -67,6 +74,10 @@
 		</td>
 	</tr>
 </script>
+<script type="text/template" id="t-project-tab">
+	<div class="col-md-1 btn btn-info js-tab" data-id="{%- projectID %}"> {%- projectName %} </div>
+</script>
+
 <script type="text/template" id="t-project">
 	<div data-dir="project">
 		<div>

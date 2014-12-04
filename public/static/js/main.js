@@ -74,7 +74,7 @@ define('projects', function (require, exports, module) {
 				dataType : 'json'
 			}).success(function (data) {
 				//debugger;
-			}).error(function(data) {
+			}).error(function() {
 				//debugger;
 			});
 		}
@@ -82,8 +82,7 @@ define('projects', function (require, exports, module) {
 });
 
 define('project', function (require, exports, module) {
-	var _ = require('lodash'),
-		$ = require('$');
+	var $ = require('$');
 
 	module.exports = require('base.dir').extend({
 		initDir : function () {
@@ -95,11 +94,11 @@ define('project', function (require, exports, module) {
 		saveProject : function () {
 			var vals = this.callChilds('getInput');
 			$.ajax({
-				type: "POST",
-				url: '/project',
-				data: JSON.stringify(vals),
-				contentType:"application/json; charset=utf-8",
-				dataType: 'json'
+				type : "POST",
+				url : '/project',
+				data : JSON.stringify(vals),
+				contentType : "application/json; charset=utf-8",
+				dataType : 'json'
 			});
 		}
 	});
@@ -129,7 +128,7 @@ define('config-dir', function (require, exports, module) {
 			dirs.attachEl(list);
 			console.log(999);
 		},
-		showConfig : function (e) {
+		showConfig : function () {
 			var tpl = _.template($('#t-project').html()),
 				pList = '',
 				list = this.$el.find('.js-projectlist');
@@ -147,10 +146,51 @@ define('config-dir', function (require, exports, module) {
 				pList += '<button class="btn js-addnew">Add new</button>';
 				list.html(pList);
 				dirs.attachEl(list);
-			}).error(function(data) {
+			}).error(function() {
 				list.html('error happend!');
 			});
 		}
 	});
 	module.exports = configDir;
+});
+
+define('projects-tab', function (require, exports, module) {
+	var $ = require("$"),
+		gevent = require('ebus');
+
+	module.exports = require('base.dir').extend({
+		events : function () {
+			this.on('click', '.js-tab', 'onTabClick');
+		},
+		onTabClick : function (event) {
+			gevent.trigger('project.tab.click', event);
+		},
+		initDir : function () {
+			var self = this,
+				tpl = _.template($('#t-project-tab').html());
+
+			$.ajax({
+				url : './projects.json',
+				type : 'GET',
+				dataType : 'json'
+			}).success(function (data) {
+				$.each(data, function(index, prj) {
+					self.$el.append(tpl(prj));
+				});
+			});
+		}
+	});
+});
+
+define('project-view', function (require, exports, module) {
+	var $ = require("$"),
+		gevent = require('ebus');
+
+	module.exports = require('base.dir').extend({
+		events : function () {
+			gevent.on('project.tab.click', function (a, b) {
+				debugger;
+			});
+		}
+	});
 });
