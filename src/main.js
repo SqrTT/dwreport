@@ -1,11 +1,52 @@
 /* globals require, console */
 var filewalker = require('filewalker'),
-	fs = require('fs'),
 	shjs = require('shelljs'),
 	JSHINT = require('dwhint').JSHINT,
 	pathToProject = '/home/tolik/git/ecom-oneapp/cartridges/',
-	path = require("path");
+	path = require('path'),
 	_ = require('lodash');
+
+// Storage for memoized results from find file
+// Should prevent lots of directory traversal &
+// lookups when liniting an entire project
+var findFileResults = {};
+
+/**
+ * Searches for a file with a specified name starting with
+ * 'dir' and going all the way up either until it finds the file
+ * or hits the root.
+ *
+ * @param {string} name filename to search for (e.g. .jshintrc)
+ * @param {string} dir  directory to start search from (default:
+ *                      current working directory)
+ *
+ * @returns {string} normalized filename
+ */
+function findFile(name, dir) {
+	dir = dir || process.cwd();
+
+	var filename = path.normalize(path.join(dir, name)),
+		parent;
+
+	if (findFileResults[filename] !== undefined) {
+		return findFileResults[filename];
+	}
+
+	parent = path.resolve(dir, '../');
+
+	if (shjs.test('-e', filename)) {
+		findFileResults[filename] = filename;
+		return filename;
+	}
+
+	if (dir === parent) {
+		findFileResults[filename] = null;
+		return null;
+	}
+
+	return findFile(name, parent);
+}
+
 
 var count = 0;
 function lint(code, results, config, data, file) {
@@ -105,58 +146,23 @@ function calcMediana(inputData) {
  * @returns {string} a path to the config file
  */
 function findConfig(file) {
-  var dir  = path.dirname(path.resolve(file));
-  var envs = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
-  var home = path.normalize(path.join(envs, ".jshintrc"));
-  var proj = findFile(".jshintrc", dir);
-  if (proj)
+	var dir  = path.dirname(path.resolve(file)),
+		envs = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
+		home = path.normalize(path.join(envs, '.jshintrc')),
+		proj = findFile('.jshintrc', dir);
 
-	return proj;
+	if (proj) {
+		return proj;
+	}
 
-  if (shjs.test("-e", home))
-	return home;
-
-  return null;
+	if (shjs.test('-e', home)) {
+		return home;
+	} else {
+		return null;
+	}
 }
 
-// Storage for memoized results from find file
-// Should prevent lots of directory traversal &
-// lookups when liniting an entire project
-var findFileResults = {};
 
-/**
- * Searches for a file with a specified name starting with
- * 'dir' and going all the way up either until it finds the file
- * or hits the root.
- *
- * @param {string} name filename to search for (e.g. .jshintrc)
- * @param {string} dir  directory to start search from (default:
- *                      current working directory)
- *
- * @returns {string} normalized filename
- */
-function findFile(name, dir) {
-  dir = dir || process.cwd();
-
-  var filename = path.normalize(path.join(dir, name));
-  if (findFileResults[filename] !== undefined) {
-	return findFileResults[filename];
-  }
-
-  var parent = path.resolve(dir, "../");
-
-  if (shjs.test("-e", filename)) {
-	findFileResults[filename] = filename;
-	return filename;
-  }
-
-  if (dir === parent) {
-	findFileResults[filename] = null;
-	return null;
-  }
-
-  return findFile(name, parent);
-}
 
 exports.validate = function (projDirPath, opts, done) {
 	var gResults = [],
@@ -167,21 +173,25 @@ exports.validate = function (projDirPath, opts, done) {
 		//debugger;
 		var code,
 			res,
+			prConf,
 			config = {
-				ext_file : p.indexOf('.ds') !== -1 ? 'ds' : 'js',
-				name_file : p
-			};
+				ext_file : p.indexOf('.ds') !== -1 ? 'ds' : 'js', //ignore line
+				name_file : p// ignore line
+			},
+			sloc = require('sloc');
 
 		if ((p).indexOf('min.js') === -1 && /(\.js|\.ds)$/.test(p)) {
-			if (count++ > 15) return;
+			if (count++ > 15) {
+				return;
+			}
 
-			var prConf = findConfig(pathToProject + p);
+			prConf = findConfig(pathToProject + p);
 			if (prConf) {
 				try {
 					prConf = JSON.parse(shjs.cat(prConf));
 
 				} catch (err) {
-					console.error("Can't parse config file: " + prConf);
+					console.error('Can\'t parse config file: ' + prConf);
 				}
 				console.log('conf', prConf);
 			}
@@ -194,7 +204,8 @@ exports.validate = function (projDirPath, opts, done) {
 				exports.exit(1);
 			}
 			//	debugger;
-			res = lint(code, gResults, _.extend(config, prConf), gData, p);
+			lint(code, gResults, _.extend(config, prConf), gData, p);
+			gData[gData.length -1].sloc = sloc(code, 'js', {});
 
 		}
 	}).on('error', function (err) {
@@ -207,6 +218,7 @@ exports.validate = function (projDirPath, opts, done) {
 				warn : file.warn,
 				error : file.error,
 				functionCount : file.functions.length,
+				sloc : file.sloc,
 				complexity : {
 					sum : 0,
 					min : 10000,
@@ -283,12 +295,20 @@ exports.calcTotals = function (data) {
 				max : 0,
 				avg : 0,
 				mediana : 0
+			},
+			sloc : {
+				block : 0,
+				comment : 0,
+				empty : 0,
+				mixed : 0,
+				single : 0,
+				source : 0,
+				total : 0
 			}
 		},
 		complexityArrTtl = [],
-		statementsArrTtl = [],
-		avgMedia = 0;
-
+		statementsArrTtl = [];
+debugger;
 	_.forEach(data, function (entry) {
 		totals.info += entry.info.length;
 		totals.warn += entry.warn.length;
@@ -296,15 +316,12 @@ exports.calcTotals = function (data) {
 		totals.functionCount += entry.functionCount;
 		totals.complexity.sum += entry.complexity.sum;
 
-
-
 		if (entry.complexity.min < totals.complexity.min) {
 			totals.complexity.min = entry.complexity.min;
 		}
 		if (entry.complexity.max > totals.complexity.max) {
 			totals.complexity.max = entry.complexity.max;
 		}
-
 
 		totals.statements.sum += entry.statements.sum;
 		if (entry.statements.min < totals.statements.min) {
@@ -316,6 +333,13 @@ exports.calcTotals = function (data) {
 
 		complexityArrTtl.push(entry.complexity.mediana);
 		statementsArrTtl.push(entry.statements.mediana);
+
+		debugger;
+		//sloc
+		_.forEach(totals.sloc, function (value, index) {
+			totals.sloc[index] += entry.sloc[index];
+		})
+
 	});
 
 	totals.complexity.avg = totals.complexity.sum / totals.functionCount;
@@ -324,4 +348,4 @@ exports.calcTotals = function (data) {
 	totals.statements.mediana = calcMediana(statementsArrTtl);
 
 	return totals;
-}
+};

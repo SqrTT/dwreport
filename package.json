@@ -12,7 +12,8 @@
     "filewalker": "*",
     "shelljs": "*",
     "body-parser" : "*",
-    "nedb": "~0.11.1"
+    "nedb": "~0.11.1",
+    "sloc" : "*"
   },
   "devDependencies": {
   	"node-inspector" : "*",
@@ -41,10 +42,10 @@
     "unused": true,
     "trailing": true,
     "maxlen": 120,
-    "maxcomplexity": 15,
-    "onevar": false,
+    "maxcomplexity": 12,
+    "onevar": true,
     "white": true,
-    "quotmark": "double",
+    "quotmark": "single",
     "node": true
   },
   "scripts": {
