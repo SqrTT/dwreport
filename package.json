@@ -4,21 +4,21 @@
   "version": "0.0.1",
   "dependencies": {
     "express": "*",
-    "lodash" : "*",
+    "lodash": "*",
     "serve-index": "*",
     "serve-static": "*",
     "cookie-session": "*",
     "dwhint": "git://github.com/SqrTT/dwhint#dw2.4.4",
-    "filewalker": "*",
     "shelljs": "*",
-    "body-parser" : "*",
-    "nedb": "~0.11.1",
-    "sloc" : "*"
+    "body-parser": "*",
+    "nedb": "0.11",
+    "sloc": "0.1",
+    "minimist": "1.1"
   },
   "devDependencies": {
-  	"node-inspector" : "*",
-  	"nodemon" : "*"
-  	},
+    "node-inspector": "*",
+    "nodemon": "*"
+  },
   "main": "dwreport",
   "engines": {
     "node": ">=0.10.1"
@@ -31,7 +31,7 @@
     "camelcase": true,
     "curly": true,
     "eqeqeq": true,
-    "forin": true,
+    "forin": false,
     "indent": 4,
     "latedef": true,
     "newcap": true,

@@ -1,8 +1,7 @@
 /* globals require, console */
-var filewalker = require('filewalker'),
-	shjs = require('shelljs'),
+var shjs = require('shelljs'),
+	fs = require('fs'),
 	JSHINT = require('dwhint').JSHINT,
-	pathToProject = '/home/tolik/git/ecom-oneapp/cartridges/',
 	path = require('path'),
 	_ = require('lodash');
 
@@ -18,7 +17,7 @@ var findFileResults = {};
  *
  * @param {string} name filename to search for (e.g. .jshintrc)
  * @param {string} dir  directory to start search from (default:
- *                      current working directory)
+ * current working directory)
  *
  * @returns {string} normalized filename
  */
@@ -126,6 +125,28 @@ function sortNumber(a, b) {
 	return a - b;
 }
 
+function getFiles(dir, files_) {
+	var i, name, files;
+	files_ = files_ || [];
+	if (typeof files_ === 'undefined') {
+		files_ = [];
+	}
+
+	files = fs.readdirSync(dir);
+	for (i in files) {
+		if (!files.hasOwnProperty(i)) {
+			continue;
+		}
+		name = dir + '/' + files[i];
+		if (fs.statSync(name).isDirectory()) {
+			getFiles(name, files_);
+		} else {
+			files_.push(name);
+		}
+	}
+	return files_;
+}
+
 function calcMediana(inputData) {
 	inputData.sort(sortNumber);
 
@@ -166,26 +187,33 @@ function findConfig(file) {
 
 exports.validate = function (projDirPath, opts, done) {
 	var gResults = [],
+		fileList = [],
 		exp = {},
 		gData = [];
+	if (_.isString(projDirPath)) {
+		projDirPath = [projDirPath];
+	}
 
-	filewalker(pathToProject).on('file', function (p, s) {
+	_.forEach(projDirPath, function (path) {
+		getFiles(path.replace(/\/$/, ''), fileList);
+	});
+
+	_.forEach(fileList, function (p) {
 		//debugger;
 		var code,
-			res,
 			prConf,
 			config = {
-				ext_file : p.indexOf('.ds') !== -1 ? 'ds' : 'js', //ignore line
-				name_file : p// ignore line
+				'ext_file' : p.indexOf('.ds') !== -1 ? 'ds' : 'js',
+				'name_file' : p
 			},
 			sloc = require('sloc');
 
 		if ((p).indexOf('min.js') === -1 && /(\.js|\.ds)$/.test(p)) {
 			if (count++ > 15) {
-				return;
+			//	return;
 			}
 
-			prConf = findConfig(pathToProject + p);
+			prConf = findConfig(p);
 			if (prConf) {
 				try {
 					prConf = JSON.parse(shjs.cat(prConf));
@@ -196,84 +224,82 @@ exports.validate = function (projDirPath, opts, done) {
 				console.log('conf', prConf);
 			}
 
-			console.log('file: %s, %d bytes', p, s.size);
+
 			try {
-				code = shjs.cat(pathToProject + p);
+				code = shjs.cat(p);
 			} catch (err) {
 				console.error('Can\'t open ' + p + ' e:' + err);
 				exports.exit(1);
 			}
+			console.log('file: %s, %d bytes', p, code.length);
 			//	debugger;
 			lint(code, gResults, _.extend(config, prConf), gData, p);
-			gData[gData.length -1].sloc = sloc(code, 'js', {});
+			gData[gData.length - 1].sloc = sloc(code, 'js', {});
 
 		}
-	}).on('error', function (err) {
-		console.error(err);
-	}).on('done', function () {
+	});
 
-		_.forEach(gData, function (file) {
-			var entry = {
-				info : file.info,
-				warn : file.warn,
-				error : file.error,
-				functionCount : file.functions.length,
-				sloc : file.sloc,
-				complexity : {
-					sum : 0,
-					min : 10000,
-					max : 0,
-					avg : 0,
-					mediana : 0
-				},
-				statements : {
-					sum : 0,
-					min : 10000,
-					max : 0,
-					avg : 0,
-					mediana : 0
-				}
+
+	_.forEach(gData, function (file) {
+		var entry = {
+			info : file.info,
+			warn : file.warn,
+			error : file.error,
+			functionCount : file.functions.length,
+			sloc : file.sloc,
+			complexity : {
+				sum : 0,
+				min : 10000,
+				max : 0,
+				avg : 0,
+				mediana : 0
 			},
-			complexityArr = [],
-			statementsArr = [];
-
-			_.forEach(file.functions, function (fn) {
-				var complexity = fn.metrics.complexity,
-					statements;
-				entry.complexity.sum += complexity;
-
-				complexityArr.push(complexity);
-				if (complexity < entry.complexity.min) {
-					entry.complexity.min = complexity;
-				}
-				if (complexity > entry.complexity.max) {
-					entry.complexity.max = complexity;
-				}
-
-				statements = fn.metrics.statements;
-				entry.statements.sum += statements;
-
-
-				statementsArr.push(statements);
-				if (statements < entry.statements.min) {
-					entry.statements.min = statements;
-				}
-				if (statements > entry.statements.max) {
-					entry.statements.max = statements;
-				}
-			});
-			if (entry.functionCount) {
-				entry.complexity.avg = entry.complexity.sum / entry.functionCount;
-				entry.statements.avg = entry.statements.sum / entry.functionCount;
-
-				entry.complexity.mediana = calcMediana(complexityArr);
-				entry.statements.mediana = calcMediana(statementsArr);
+			statements : {
+				sum : 0,
+				min : 10000,
+				max : 0,
+				avg : 0,
+				mediana : 0
 			}
-			exp[file.file] = entry;
+		},
+		complexityArr = [],
+		statementsArr = [];
+
+		_.forEach(file.functions, function (fn) {
+			var complexity = fn.metrics.complexity,
+				statements;
+			entry.complexity.sum += complexity;
+
+			complexityArr.push(complexity);
+			if (complexity < entry.complexity.min) {
+				entry.complexity.min = complexity;
+			}
+			if (complexity > entry.complexity.max) {
+				entry.complexity.max = complexity;
+			}
+
+			statements = fn.metrics.statements;
+			entry.statements.sum += statements;
+
+
+			statementsArr.push(statements);
+			if (statements < entry.statements.min) {
+				entry.statements.min = statements;
+			}
+			if (statements > entry.statements.max) {
+				entry.statements.max = statements;
+			}
 		});
-		done(exp);
-		console.log('%d dirs, %d files', this.dirs, count);
-	}).walk();
+		if (entry.functionCount) {
+			entry.complexity.avg = entry.complexity.sum / entry.functionCount;
+			entry.statements.avg = entry.statements.sum / entry.functionCount;
+
+			entry.complexity.mediana = calcMediana(complexityArr);
+			entry.statements.mediana = calcMediana(statementsArr);
+		}
+		exp[file.file] = entry;
+	});
+	done(exp);
 },
 
 exports.calcTotals = function (data) {
@@ -308,7 +334,7 @@ exports.calcTotals = function (data) {
 		},
 		complexityArrTtl = [],
 		statementsArrTtl = [];
-debugger;
+
 	_.forEach(data, function (entry) {
 		totals.info += entry.info.length;
 		totals.warn += entry.warn.length;
@@ -334,11 +360,10 @@ debugger;
 		complexityArrTtl.push(entry.complexity.mediana);
 		statementsArrTtl.push(entry.statements.mediana);
 
-		debugger;
 		//sloc
 		_.forEach(totals.sloc, function (value, index) {
 			totals.sloc[index] += entry.sloc[index];
-		})
+		});
 
 	});
 

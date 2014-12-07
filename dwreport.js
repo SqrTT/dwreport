@@ -1,10 +1,11 @@
 /* globals require, console */
 var fs = require('fs'),
 	reporter = require('./src/main'),
-	pathToProject = '/home/tolik/git/ecom-oneapp/cartridges/';
+	minimist = require('minimist'),
+	args = minimist(process.argv.slice(2));
 
-
-reporter.validate(pathToProject, null, function (result) {
+reporter.validate(args.path, null, function (result) {
 	console.log(reporter.calcTotals(result));
 	fs.writeFileSync(process.cwd() + '/output.json', JSON.stringify(result));
 });
+
