@@ -185,7 +185,7 @@ function findConfig(file) {
 
 
 
-exports.validate = function (projDirPath, opts, done) {
+exports.validate = function (projDirPath, opts, done, verbose) {
 	var gResults = [],
 		fileList = [],
 		exp = {},
@@ -209,9 +209,6 @@ exports.validate = function (projDirPath, opts, done) {
 			sloc = require('sloc');
 
 		if ((p).indexOf('min.js') === -1 && /(\.js|\.ds)$/.test(p)) {
-			if (count++ > 15) {
-			//	return;
-			}
 
 			prConf = findConfig(p);
 			if (prConf) {
@@ -221,7 +218,6 @@ exports.validate = function (projDirPath, opts, done) {
 				} catch (err) {
 					console.error('Can\'t parse config file: ' + prConf);
 				}
-				console.log('conf', prConf);
 			}
 
 
@@ -231,7 +227,9 @@ exports.validate = function (projDirPath, opts, done) {
 				console.error('Can\'t open ' + p + ' e:' + err);
 				exports.exit(1);
 			}
-			console.log('file: %s, %d bytes', p, code.length);
+			if (verbose) {
+				console.log('file: %s, %d bytes', p, code.length);
+			};
 			//	debugger;
 			lint(code, gResults, _.extend(config, prConf), gData, p);
 			gData[gData.length - 1].sloc = sloc(code, 'js', {});
@@ -268,6 +266,7 @@ exports.validate = function (projDirPath, opts, done) {
 		_.forEach(file.functions, function (fn) {
 			var complexity = fn.metrics.complexity,
 				statements;
+
 			entry.complexity.sum += complexity;
 
 			complexityArr.push(complexity);
