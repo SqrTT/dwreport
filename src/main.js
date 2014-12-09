@@ -356,8 +356,8 @@ exports.calcTotals = function (data) {
 			totals.statements.max = entry.statements.max;
 		}
 
-		complexityArrTtl.push(entry.complexity.mediana);
-		statementsArrTtl.push(entry.statements.mediana);
+		complexityArrTtl.push(entry.complexity.sum);
+		statementsArrTtl.push(entry.statements.sum);
 
 		//sloc
 		_.forEach(totals.sloc, function (value, index) {
@@ -366,8 +366,8 @@ exports.calcTotals = function (data) {
 
 	});
 
-	totals.complexity.avg = totals.complexity.sum / totals.functionCount;
-	totals.statements.avg = totals.statements.sum / totals.functionCount;
+	totals.complexity.avg = totals.complexity.sum / _.size(data);
+	totals.statements.avg = totals.statements.sum / _.size(data);
 	totals.complexity.mediana = calcMediana(complexityArrTtl);
 	totals.statements.mediana = calcMediana(statementsArrTtl);
 

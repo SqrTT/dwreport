@@ -87,6 +87,7 @@ define('Class', function (require, exports, module) {
 
 define('base.dir', function (require, exports, module) {
 	var helper = require('dir.helper'),
+		gevent = require('gevent'),
 		uniqueID = 0;
 
 	module.exports = require('Class').extend({
@@ -96,6 +97,19 @@ define('base.dir', function (require, exports, module) {
 				self.$el.on(event, self[classes].bind(self));
 			} else {
 				self.$el.on(event, classes, self[fnName].bind(self));
+			}
+		},
+		ong : function (event, classes, fnName) {
+			var self = this;
+
+			if (!fnName) {
+				gevent.on(event, function (doc, event) {
+					self[classes].call(self, event);
+				});
+			} else {
+				gevent.on(event, classes, function (doc, event) {
+					self[fnName].call(self, event);
+				});
 			}
 		},
 		callParents : function (fnName, data, deep) {

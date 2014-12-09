@@ -27,12 +27,12 @@ var define;
 			names,
 			current,
 			i;
-		
+
 		name = mapModuleName((requires.length && requires[requires.length - 1]), name);
 		if (!registredModules[name] && name.indexOf(APP) === 0) {
 			names = name.split(SPLITTER);
 			current = global;
-			
+
 			for (i = 0; i < names.length; i++) {
 				if (current[names[i]] !== undefined) {
 					current = current[names[i]];
@@ -66,7 +66,7 @@ var define;
 				var names = moduleName.split(SPLITTER),
 					current = global,
 					i = 0;
-	
+
 				for (; i < names.length - 1; i++) {
 					if (!current[names[i]]) {
 						current[names[i]] = {};
@@ -80,11 +80,11 @@ var define;
 	}
 }(this));
 /// define some basic modules
-define('document', function (require, exports, module) {
-	module.exports = document;
-});
 define('window', function (require, exports, module) {
 	module.exports = window;
+});
+define('document', function (require, exports, module) {
+	module.exports = require('window').document;
 });
 define('jquery', function (require, exports, module) {
 	var window = require('window');
@@ -124,5 +124,8 @@ define('log', function (require, exports, module) {
 	module.exports = require('window').console;
 });
 define('ebus', function (require, exports, module) {
+	module.exports = require('$doc');
+});
+define('gevent', function (require, exports, module) {
 	module.exports = require('$doc');
 });

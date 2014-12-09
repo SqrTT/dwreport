@@ -19,7 +19,7 @@ function saveJson(data, filename) {
 
 function saveCSV(data, filename) {
 	var csvString = [
-		new Date(),
+		'"' + new Date() + '"',
 		data.error,
 		data.warn,
 		data.info,

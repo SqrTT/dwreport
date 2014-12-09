@@ -22,9 +22,9 @@ define('reporter', function (require, exports, module) {
 						warns : file.warn,
 						infos : file.info
 					});
-				})
+				});
 				self.$el.find('.js-tbody').append(rows);
-			}).error(function() {
+			}).error(function () {
 				//debugger;
 			});
 		}
@@ -74,7 +74,7 @@ define('projects', function (require, exports, module) {
 				dataType : 'json'
 			}).success(function (data) {
 				//debugger;
-			}).error(function() {
+			}).error(function () {
 				//debugger;
 			});
 		}
@@ -94,10 +94,10 @@ define('project', function (require, exports, module) {
 		saveProject : function () {
 			var vals = this.callChilds('getInput');
 			$.ajax({
-				type : "POST",
+				type : 'POST',
 				url : '/project',
 				data : JSON.stringify(vals),
-				contentType : "application/json; charset=utf-8",
+				contentType : 'application/json; charset=utf-8',
 				dataType : 'json'
 			});
 		}
@@ -108,54 +108,55 @@ define('config-dir', function (require, exports, module) {
 	var defaultDir = require('base.dir'),
 		dirs = require('dirs'),
 		_ = require('lodash'),
-		$ = require('$');
+		$ = require('$'),
+			configDir = defaultDir.extend({
+			initDir : function () {
+			},
+			events : function () {
+				if (this._super) {
+					this._super();
+				}
+				this.on('click', '.js-config', 'showConfig');
+				this.on('click', '.js-addnew', 'addNew');
+			},
+			addNew : function () {
+				var tpl = _.template($('#t-project').html()),
+					list = this.$el.find('.js-projectlist');
 
-	var configDir = defaultDir.extend({
-		initDir : function () {
-		},
-		events : function () {
-			this._super && this._super();
-			this.on('click', '.js-config', 'showConfig');
-			this.on('click', '.js-addnew', 'addNew');
-		},
-		addNew : function () {
-			var tpl = _.template($('#t-project').html()),
-				list = this.$el.find('.js-projectlist');
-
-			dirs.detachEl(list);
-			list.html(tpl({projectName: '', projectID : '', paths: ''}));
-			list.find('.js-pr-name').removeAttr('disabled');
-			dirs.attachEl(list);
-			console.log(999);
-		},
-		showConfig : function () {
-			var tpl = _.template($('#t-project').html()),
-				pList = '',
-				list = this.$el.find('.js-projectlist');
-
-			$.ajax({
-				url : './projects.json',
-				type : 'GET',
-				dataType : 'json'
-			}).success(function (data) {
 				dirs.detachEl(list);
-				_.each(data, function (prj) {
-					pList += tpl(prj);
-				});
-				list.show();
-				pList += '<button class="btn js-addnew">Add new</button>';
-				list.html(pList);
+				list.html(tpl({projectName: '', projectID : '', paths: ''}));
+				list.find('.js-pr-name').removeAttr('disabled');
 				dirs.attachEl(list);
-			}).error(function() {
-				list.html('error happend!');
-			});
-		}
-	});
+				console.log(999);
+			},
+			showConfig : function () {
+				var tpl = _.template($('#t-project').html()),
+					pList = '',
+					list = this.$el.find('.js-projectlist');
+
+				$.ajax({
+					url : './projects.json',
+					type : 'GET',
+					dataType : 'json'
+				}).success(function (data) {
+					dirs.detachEl(list);
+					_.each(data, function (prj) {
+						pList += tpl(prj);
+					});
+					list.show();
+					pList += '<button class="btn js-addnew">Add new</button>';
+					list.html(pList);
+					dirs.attachEl(list);
+				}).error(function () {
+					list.html('error happend!');
+				});
+			}
+		});
 	module.exports = configDir;
 });
 
 define('projects-tab', function (require, exports, module) {
-	var $ = require("$"),
+	var $ = require('$'),
 		gevent = require('ebus');
 
 	module.exports = require('base.dir').extend({
@@ -174,7 +175,7 @@ define('projects-tab', function (require, exports, module) {
 				type : 'GET',
 				dataType : 'json'
 			}).success(function (data) {
-				$.each(data, function(index, prj) {
+				$.each(data, function (index, prj) {
 					self.$el.append(tpl(prj));
 				});
 			});
@@ -183,13 +184,25 @@ define('projects-tab', function (require, exports, module) {
 });
 
 define('project-view', function (require, exports, module) {
-	var $ = require("$"),
-		gevent = require('ebus');
+	var $ = require("$");
 
 	module.exports = require('base.dir').extend({
 		events : function () {
-			gevent.on('project.tab.click', function (a, b) {
-				debugger;
+			this.ong('project.tab.click', 'onProjectClick');
+		},
+		onProjectClick : function (event) {
+			var $target = $(event.target);
+			//debugger;
+			$.ajax({
+				url : '/output/' + $target.data('id'),
+				type : 'GET',
+				dataType : 'json'
+			}).success(function (data) {
+				if (data.success) {
+					debugger;
+				} else {
+					require('log').error(data);
+				}
 			});
 		}
 	});
