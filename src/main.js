@@ -370,6 +370,7 @@ exports.calcTotals = function (data) {
 	totals.statements.avg = totals.statements.sum / _.size(data);
 	totals.complexity.mediana = calcMediana(complexityArrTtl);
 	totals.statements.mediana = calcMediana(statementsArrTtl);
+	totals.filesCount = _.size(data);
 
 	return totals;
 };

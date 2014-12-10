@@ -184,26 +184,85 @@ define('projects-tab', function (require, exports, module) {
 });
 
 define('project-view', function (require, exports, module) {
-	var $ = require("$");
+	var $ = require("$"),
+		progress = require('progress-bar');
 
 	module.exports = require('base.dir').extend({
 		events : function () {
 			this.ong('project.tab.click', 'onProjectClick');
 		},
 		onProjectClick : function (event) {
-			var $target = $(event.target);
+			var $target = $(event.target),
+				self = this;
 			//debugger;
+			progress.show();
 			$.ajax({
 				url : '/output/' + $target.data('id'),
 				type : 'GET',
 				dataType : 'json'
 			}).success(function (data) {
+				var tpl = _.template($('#totals').html()),
+					tplFiles = _.template($('#file-container').html()),
+					file = _.template($('#file').html()),
+					html = '',
+					fileHtml = '';
+
 				if (data.success) {
-					debugger;
+					html += tpl(data.data.total);
+					delete data.data.total;
+					$.each(data.data, function(index, value) {
+						value.filename = index;
+						fileHtml += file(value);
+					});
+					html += tplFiles({files : fileHtml});
+					self.$el.html(html);
+					//debugger;
 				} else {
 					require('log').error(data);
 				}
+			}).always(function () {
+				progress.hide();
 			});
 		}
 	});
+});
+
+define('progress-bar', function(require, exports) {
+	var count = 0,
+		spin = require('spin'),
+
+	opts = {
+		lines: 12, // The number of lines to draw
+		length: 30, // The length of each line
+		width: 4, // The line thickness
+		radius: 20, // The radius of the inner circle
+		corners: 0.2, // Corner roundness (0..1)
+		rotate: 0, // The rotation offset
+		direction: 1, // 1: clockwise, -1: counterclockwise
+		color: '#476172', // #rgb or #rrggbb or array of colors
+		speed: 1.6, // Rounds per second
+		trail: 53, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: true, // Whether to use hardware acceleration
+		className: 'spinner', // The CSS class to assign to the spinner
+		zIndex: 2e9, // The z-index (defaults to 2000000000)
+		position: "fixed",
+		top: '50%', // Top position relative to parent
+		left: '50%' // Left position relative to parent
+	},
+	spinner = new spin(opts);
+
+	exports.show = function() {
+		if (count < 1) {
+			spinner.spin(require('document').body);
+		}
+		count++;
+	}
+	exports.hide = function() {
+		count--;
+		if (count < 1) {
+			spinner.stop();
+			count = 0;
+		}
+	}
 });

@@ -77,6 +77,74 @@
 <script type="text/template" id="t-project-tab">
 	<div class="col-md-1 btn btn-info js-tab" data-id="{%- projectID %}"> {%- projectName %} </div>
 </script>
+<script type="text/template" id="totals">
+<div class="container">
+	<div class="row">
+		<span class="col-md-2 {%- (error ? 'bg-danger' : '') %}">Errors: {%- error %}</span>
+		<span class="col-md-2 {%- (warn > 50 ? 'bg-danger' : '') %}" >Warns: {%- warn %}</span>
+		<span class="col-md-2 {%- (info > 200 ? 'bg-danger' : '') %}">Infos: {%- info %}</span>
+		<span class="col-md-2">Functions count: {%- functionCount %}</span>
+		<span class="col-md-2">Files: {%- filesCount %}</span>
+	</div>
+	<div class="row">
+		<span class="col-md-2">Sum complexity: {%- complexity.sum %}</span>
+		<span class="col-md-2">Avg complexity: {%- complexity.avg.toFixed(2) %}</span>
+		<span class="col-md-2 ">Median complexity: {%- complexity.mediana %}</span>
+		<span class="col-md-2 {%- (complexity.max > 11 ? 'bg-danger' : '') %}">Max complexity: {%- complexity.max %}</span>
+		<span class="col-md-2">Min complexity: {%- complexity.min %}</span>
+	</div>
+	<div class="row">
+		<span class="col-md-2">Sum statements: {%- statements.sum %}</span>
+		<span class="col-md-2">Avg statements: {%- statements.avg.toFixed(2) %}</span>
+		<span class="col-md-2">Median statements: {%- statements.mediana %}</span>
+		<span class="col-md-2">Max statements: {%- statements.max %}</span>
+		<span class="col-md-2">min statements: {%- statements.min %}</span>
+	</div>
+	<div class="row">
+		<span class="col-md-2">SLOC: {%- sloc.source %}</span>
+		<span class="col-md-2">LOC: {%- sloc.total %}</span>
+		<span class="col-md-2">Comments LOC: {%- sloc.comment %}</span>
+		<span class="col-md-2">Empty LOC: {%- sloc.empty %}</span>
+		<span class="col-md-2">Single LOC: {%- sloc.single %}</span>
+	</div>
+</div>
+</script>
+
+<script type="text/template" id="file-container">
+	<div class="container">
+		<div class="row">Files</div>
+		<div class="row">Sort by:
+
+		</div>
+		{%= files%}
+	</div>
+</script>
+
+<script type="text/template" id="file">
+	<div class="row">
+		<span class="col-md-12">filename: {%- filename %}</span>
+		<span class="col-md-2 {%- (error.length ? 'bg-danger' : '') %}">Errors: {%- error.length %}</span>
+		<span class="col-md-2 {%- (warn.length > 10 ? 'bg-danger' : '') %}" >Warns: {%- warn.length %}</span>
+		<span class="col-md-2 {%- (info.length > 50 ? 'bg-danger' : '') %}">Infos: {%- info.length %}</span>
+		<span class="col-md-2">Functions count: {%- functionCount %}</span>
+		<span class="col-md-2">Sum complexity: {%- complexity.sum %}</span>
+		<span class="col-md-2">Avg complexity: {%- complexity.avg.toFixed(2) %}</span>
+		<span class="col-md-2 ">Median complexity: {%- complexity.mediana %}</span>
+		<span class="col-md-2 {%- (complexity.max > 11 ? 'bg-danger' : '') %}">Max complexity: {%- complexity.max %}</span>
+		<span class="col-md-2">Min complexity: {%- complexity.min %}</span>
+		<span class="col-md-2">Sum statements: {%- statements.sum %}</span>
+		<span class="col-md-2">Avg statements: {%- statements.avg.toFixed(2) %}</span>
+		<span class="col-md-2">Median statements: {%- statements.mediana %}</span>
+		<span class="col-md-2">Max statements: {%- statements.max %}</span>
+		<span class="col-md-2">min statements: {%- statements.min %}</span>
+		<span class="col-md-2">SLOC: {%- sloc.source %}</span>
+		<span class="col-md-2">LOC: {%- sloc.total %}</span>
+		<span class="col-md-2">Comments LOC: {%- sloc.comment %}</span>
+		<span class="col-md-2">Empty LOC: {%- sloc.empty %}</span>
+	</div>
+	<hr/>
+</script>
+
 
 <script type="text/template" id="t-project">
 	<div data-dir="project">
@@ -106,6 +174,7 @@
 <script src="./static/js/libs/jquery-migrate.js" type="text/javascript"></script>
 <script src="./static//js/libs/module.js" type="text/javascript"></script>
 <script src="./static/js/libs/lodash.js" type="text/javascript"></script>
+<script src="./static/js/spin.js" type="text/javascript"></script>
 <script src="./static/js/directives.base.js" type="text/javascript"></script>
 <script src="./static/js/app.directives.js" type="text/javascript"></script>
 <script src="./static/js/main.js" type="text/javascript"></script>
