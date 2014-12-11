@@ -1,3 +1,4 @@
+/* global define */
 define('reporter', function (require, exports, module) {
 	var defaultDir = require('base.dir'),
 		_ = require('lodash'),
@@ -72,7 +73,7 @@ define('projects', function (require, exports, module) {
 				url : './projects.json',
 				type : 'GET',
 				dataType : 'json'
-			}).success(function (data) {
+			}).success(function () {
 				//debugger;
 			}).error(function () {
 				//debugger;
@@ -157,7 +158,8 @@ define('config-dir', function (require, exports, module) {
 
 define('projects-tab', function (require, exports, module) {
 	var $ = require('$'),
-		gevent = require('ebus');
+		gevent = require('ebus'),
+		_ = require('lodash');
 
 	module.exports = require('base.dir').extend({
 		events : function () {
@@ -184,12 +186,80 @@ define('projects-tab', function (require, exports, module) {
 });
 
 define('project-view', function (require, exports, module) {
-	var $ = require("$"),
-		progress = require('progress-bar');
+	var $ = require('$'),
+		_ = require('lodash'),
+		progress = require('progress-bar'),
+		records = [],
+		sortBy = '',
+		totals,
+		tpl = _.template($('#totals').html()),
+		tplFiles = _.template($('#file-container').html()),
+		file = _.template($('#file').html());
 
 	module.exports = require('base.dir').extend({
 		events : function () {
 			this.ong('project.tab.click', 'onProjectClick');
+			this.on('click', '.js-sortby .btn', 'onSortBy');
+		},
+		onSortBy : function (event) {
+			var sortedArr;
+
+			sortBy = $(event.target).data('sortby');
+			sortedArr = _.sortBy(records, function (value) {
+				switch (sortBy) {
+					case 'errors':
+						return -value.error.length;
+					case 'warns':
+						return -value.warn.length;
+					case 'infos':
+						return -value.info.length;
+					case 'functs':
+						return -value.functionCount;
+					case 'sumcomp' :
+						return -value.complexity.sum;
+					case 'avgcomp' :
+						return -value.complexity.avg;
+					case 'medcomp' :
+						return -value.complexity.mediana;
+					case 'maxcomp' :
+						return -value.complexity.max;
+					case 'mincomp' :
+						return -value.complexity.min;
+					case 'sumstat' :
+						return -value.statements.sum;
+					case 'avgstat' :
+						return -value.statements.avg;
+					case 'medstat' :
+						return -value.statements.mediana;
+					case 'maxstat' :
+						return -value.statements.max;
+					case 'minstat' :
+						return -value.statements.min;
+					case 'sloc' :
+						return -value.sloc.source;
+					case 'loc' :
+						return -value.sloc.total;
+					case 'comments' :
+						return -value.sloc.comment;
+					case 'empty' :
+						return -value.sloc.empty;
+					default:
+						return 0;
+				}
+			});
+
+			//debugger;
+			this.drawView(sortedArr);
+		},
+		drawView : function (elements) {
+			var html = '',
+				fileHtml = '';
+			elements = elements || records;
+			$.each(elements, function (index, value) {
+				fileHtml += file(value);
+			});
+			html += tplFiles({files : fileHtml, totals : tpl(totals)});
+			this.$el.html(html);
 		},
 		onProjectClick : function (event) {
 			var $target = $(event.target),
@@ -201,22 +271,14 @@ define('project-view', function (require, exports, module) {
 				type : 'GET',
 				dataType : 'json'
 			}).success(function (data) {
-				var tpl = _.template($('#totals').html()),
-					tplFiles = _.template($('#file-container').html()),
-					file = _.template($('#file').html()),
-					html = '',
-					fileHtml = '';
-
 				if (data.success) {
-					html += tpl(data.data.total);
+					totals = data.data.total;
 					delete data.data.total;
-					$.each(data.data, function(index, value) {
+					$.each(data.data, function (index, value) {
 						value.filename = index;
-						fileHtml += file(value);
+						records.push(value);
 					});
-					html += tplFiles({files : fileHtml});
-					self.$el.html(html);
-					//debugger;
+					self.drawView();
 				} else {
 					require('log').error(data);
 				}
@@ -227,9 +289,9 @@ define('project-view', function (require, exports, module) {
 	});
 });
 
-define('progress-bar', function(require, exports) {
+define('progress-bar', function (require, exports) {
 	var count = 0,
-		spin = require('spin'),
+		Spin = require('spin'),
 
 	opts = {
 		lines: 12, // The number of lines to draw
@@ -246,23 +308,23 @@ define('progress-bar', function(require, exports) {
 		hwaccel: true, // Whether to use hardware acceleration
 		className: 'spinner', // The CSS class to assign to the spinner
 		zIndex: 2e9, // The z-index (defaults to 2000000000)
-		position: "fixed",
+		position: 'fixed',
 		top: '50%', // Top position relative to parent
 		left: '50%' // Left position relative to parent
 	},
-	spinner = new spin(opts);
+	spinner = new Spin(opts);
 
-	exports.show = function() {
+	exports.show = function () {
 		if (count < 1) {
 			spinner.spin(require('document').body);
 		}
 		count++;
-	}
-	exports.hide = function() {
+	};
+	exports.hide = function () {
 		count--;
 		if (count < 1) {
 			spinner.stop();
 			count = 0;
 		}
-	}
+	};
 });
