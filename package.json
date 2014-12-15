@@ -20,9 +20,6 @@
     "nodemon": "*"
   },
   "main": "dwreport",
-  "engines": {
-    "node": ">=0.10.1"
-  },
   "jshintConfig": {
     "maxerr": 1000,
     "nonbsp": true,
