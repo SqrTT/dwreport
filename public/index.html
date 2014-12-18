@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link href="./static/css/bootstrap.css" rel="stylesheet">
+		<link href="./static/vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
 
 		<title>Summary</title>
 
@@ -149,14 +149,14 @@
 <script type="text/template" id="t-project">
 	<div data-dir="project">
 		<div>
-			Name: <input data-dir="input" name="projectName" value="{%- projectName %}">
+			Name: <input data-dir="generic.input" name="projectName" value="{%- projectName %}">
 		</div>
 		<div>
-		ID: <input data-dir="input" name="projectID" class="js-pr-name" value="{%- projectID %}" disabled="disabled">
+		ID: <input data-dir="generic.input" name="projectID" class="js-pr-name" value="{%- projectID %}" disabled="disabled">
 		</div>
 		<div>
 			Paths:
-			<textarea data-dir="input" name='paths'>{%- paths %}</textarea>
+			<textarea data-dir="generic.input" name='paths'>{%- paths %}</textarea>
 		</div>
 		<div>
 			<button>Save</button>
@@ -166,18 +166,17 @@
 
 
 
-<script>
-	window.app = window.app || {};
-</script>
+		<script>
+			window.app = window.app || {};
+		</script>
 
-<script src="./static/js/libs/jquery.js" type="text/javascript"></script>
-<script src="./static/js/libs/jquery-migrate.js" type="text/javascript"></script>
-<script src="./static//js/libs/module.js" type="text/javascript"></script>
-<script src="./static/js/libs/lodash.js" type="text/javascript"></script>
-<script src="./static/js/spin.js" type="text/javascript"></script>
-<script src="./static/js/directives.base.js" type="text/javascript"></script>
-<script src="./static/js/app.directives.js" type="text/javascript"></script>
-<script src="./static/js/main.js" type="text/javascript"></script>
+		<script src="./static/vendor/smodular/smodular.js" type="text/javascript"></script>
+		<script src="./static/vendor/jquery/dist/jquery.js" type="text/javascript"></script>
+		<script src="./static/vendor/lodash/dist/lodash.js" type="text/javascript"></script>
+		<script src="./static/vendor/spin.js/spin.js" type="text/javascript"></script>
+		<script src="./static/vendor/sdirective/sdirective.js" type="text/javascript"></script>
+
+		<script src="./static/js/main.js" type="text/javascript"></script>
 
 	</body>
 </html>

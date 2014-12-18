@@ -1,7 +1,7 @@
 {
   "name": "dwreport",
   "main": "dwreport.js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "homepage": "https://github.com/SqrTT/dwreport",
   "authors": [
     "SqrTT <tolik@sqrtt.pro>"
@@ -17,7 +17,10 @@
   ],
   "dependencies": {
     "jquery": "~2.1.1",
-    "lodash": "*",
-    "bootstrap": "*"
+    "lodash": "~2.4.1",
+    "bootstrap": "~3.3.1",
+    "smodular": "SqrTT/SModular#master",
+    "sdirective": "SqrTT/SDirective#master",
+    "spin.js": "~2.0.1"
   }
 }

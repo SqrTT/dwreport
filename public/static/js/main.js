@@ -158,7 +158,7 @@ define('config-dir', function (require, exports, module) {
 
 define('projects-tab', function (require, exports, module) {
 	var $ = require('$'),
-		gevent = require('ebus'),
+		gevent = require('gevent'),
 		_ = require('lodash');
 
 	module.exports = require('base.dir').extend({

@@ -1,6 +1,6 @@
 
 workdir/
-public/static/libs/
+public/static/vendor/
 
 # Logs
 logs
