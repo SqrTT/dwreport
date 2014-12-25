@@ -14,7 +14,7 @@ gulp.task('bower', function() {
 gulp.task('default', ['bower'], function () {
 	var lib = require('bower-files')({
 		overrides: {
-    		jQuery: {
+    		jquery: {
     			dependencies: {
     				'smodular' : "*"
     			}
@@ -30,7 +30,7 @@ gulp.task('default', ['bower'], function () {
         .pipe(smodular())
 		.pipe(sourcemaps.init())
     	.pipe(concat('libs.min.js'))
-    	.pipe(uglify())
+    //	.pipe(uglify())
     	.pipe(sourcemaps.write('.'))
     	.pipe(gulp.dest('public/static/dist/js'));
 });
