@@ -32,35 +32,7 @@ define('reporter', function (require, exports, module) {
 	});
 });
 
-define('reporter-warn', function (require, exports, module) {
-	var defaultDir = require('base.dir'),
-		_ = require('lodash'),
-		$ = require('$');
 
-	module.exports = defaultDir.extend({
-
-	});
-});
-
-define('reporter-error', function (require, exports, module) {
-	var defaultDir = require('base.dir'),
-		_ = require('lodash'),
-		$ = require('$');
-
-	module.exports = defaultDir.extend({
-
-	});
-});
-
-define('reporter-info', function (require, exports, module) {
-	var defaultDir = require('base.dir'),
-		_ = require('lodash'),
-		$ = require('$');
-
-	module.exports = defaultDir.extend({
-
-	});
-});
 
 define('projects', function (require, exports, module) {
 	var defaultDir = require('base.dir'),
@@ -83,7 +55,6 @@ define('projects', function (require, exports, module) {
 });
 
 define('project', function (require, exports, module) {
-	var $ = require('$');
 
 	module.exports = require('base.dir').extend({
 		initDir : function () {
@@ -94,7 +65,7 @@ define('project', function (require, exports, module) {
 		},
 		saveProject : function () {
 			var vals = this.callChilds('getInput');
-			$.ajax({
+			require('$').ajax({
 				type : 'POST',
 				url : '/project',
 				data : JSON.stringify(vals),
@@ -110,6 +81,7 @@ define('config-dir', function (require, exports, module) {
 		dirs = require('dirs'),
 		_ = require('lodash'),
 		$ = require('$'),
+
 			configDir = defaultDir.extend({
 			initDir : function () {
 			},
@@ -280,7 +252,7 @@ define('project-view', function (require, exports, module) {
 					});
 					self.drawView();
 				} else {
-					require('log').error(data);
+					require('console').error(data);
 				}
 			}).always(function () {
 				progress.hide();

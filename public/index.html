@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link href="./static/vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+		<link href="./static/dist/css/libs.min.css" rel="stylesheet">
 
 		<title>Summary</title>
 
@@ -42,105 +42,125 @@
 
 <script type="text/template" id="tbl-row">
 	<tr >
-		<td >{%- filename %}</td>
+		<td ><%- filename %></td>
 		<td>
-			{% if (errors.length) { %}
+			<% if (errors.length) { %>
 				<div class="bg-danger" data-dir="reporter-error">
 					<hidden class="errors">
-						{%= JSON.stringify(errors) %}
+						<%= JSON.stringify(errors) %>
 
 					</hidden>
-					Total errors: {%- errors.length %}
+					Total errors: <%- errors.length %>
 				</div>
-			{% } %}
-			{% if (warns.length) { %}
+			<% } %>
+			<% if (warns.length) { %>
 			<div class="bg-warning" data-dir="reporter-warn">
 				<hidden  class="warns">
-					{%= JSON.stringify(warns) %}
+					<%= JSON.stringify(warns) %>
 
 				</hidden>
-				Total warnings: {%- warns.length %}
+				Total warnings: <%- warns.length %>
 			</div>
-			{% } %}
-			{% if (infos.length) { %}
+			<% } %>
+			<% if (infos.length) { %>
 			<div class="bg-info" data-dir="reporter-info">
 				<hidden  class="infos">
-					{%= JSON.stringify(infos) %}
+					<%= JSON.stringify(infos) %>
 
 				</hidden>
-				Total infos: {%- infos.length %}
+				Total infos: <%- infos.length %>
 			</div>
-			{% } %}
+			<% } %>
 		</td>
 	</tr>
 </script>
 <script type="text/template" id="t-project-tab">
-	<div class="col-md-1 btn btn-info js-tab" data-id="{%- projectID %}"> {%- projectName %} </div>
+	<div class="col-md-1 btn btn-info js-tab" data-id="<%- projectID %>"> <%- projectName %> </div>
 </script>
 <script type="text/template" id="totals">
 <div class="container">
 	<div class="row">
-		<span class="col-md-2 {%- (error ? 'bg-danger' : '') %}">Errors: {%- error %}</span>
-		<span class="col-md-2 {%- (warn > 50 ? 'bg-danger' : '') %}" >Warns: {%- warn %}</span>
-		<span class="col-md-2 {%- (info > 200 ? 'bg-danger' : '') %}">Infos: {%- info %}</span>
-		<span class="col-md-2">Functions count: {%- functionCount %}</span>
-		<span class="col-md-2">Files: {%- filesCount %}</span>
+		<span class="col-md-2 <%- (error ? 'bg-danger' : '') %>">Errors: <%- error %></span>
+		<span class="col-md-2 <%- (warn > 50 ? 'bg-danger' : '') %>" >Warns: <%- warn %></span>
+		<span class="col-md-2 <%- (info > 200 ? 'bg-danger' : '') %>">Infos: <%- info %></span>
+		<span class="col-md-2">Functions count: <%- functionCount %></span>
+		<span class="col-md-2">Files: <%- filesCount %></span>
 	</div>
 	<div class="row">
-		<span class="col-md-2">Sum complexity: {%- complexity.sum %}</span>
-		<span class="col-md-2">Avg complexity: {%- complexity.avg.toFixed(2) %}</span>
-		<span class="col-md-2 ">Median complexity: {%- complexity.mediana %}</span>
-		<span class="col-md-2 {%- (complexity.max > 11 ? 'bg-danger' : '') %}">Max complexity: {%- complexity.max %}</span>
-		<span class="col-md-2">Min complexity: {%- complexity.min %}</span>
+		<span class="col-md-2">Sum complexity: <%- complexity.sum %></span>
+		<span class="col-md-2">Avg complexity: <%- complexity.avg.toFixed(2) %></span>
+		<span class="col-md-2 ">Median complexity: <%- complexity.mediana %></span>
+		<span class="col-md-2 <%- (complexity.max > 11 ? 'bg-danger' : '') %>">Max complexity: <%- complexity.max %></span>
+		<span class="col-md-2">Min complexity: <%- complexity.min %></span>
 	</div>
 	<div class="row">
-		<span class="col-md-2">Sum statements: {%- statements.sum %}</span>
-		<span class="col-md-2">Avg statements: {%- statements.avg.toFixed(2) %}</span>
-		<span class="col-md-2">Median statements: {%- statements.mediana %}</span>
-		<span class="col-md-2">Max statements: {%- statements.max %}</span>
-		<span class="col-md-2">min statements: {%- statements.min %}</span>
+		<span class="col-md-2">Sum statements: <%- statements.sum %></span>
+		<span class="col-md-2">Avg statements: <%- statements.avg.toFixed(2) %></span>
+		<span class="col-md-2">Median statements: <%- statements.mediana %></span>
+		<span class="col-md-2">Max statements: <%- statements.max %></span>
+		<span class="col-md-2">min statements: <%- statements.min %></span>
 	</div>
 	<div class="row">
-		<span class="col-md-2">SLOC: {%- sloc.source %}</span>
-		<span class="col-md-2">LOC: {%- sloc.total %}</span>
-		<span class="col-md-2">Comments LOC: {%- sloc.comment %}</span>
-		<span class="col-md-2">Empty LOC: {%- sloc.empty %}</span>
-		<span class="col-md-2">Single LOC: {%- sloc.single %}</span>
+		<span class="col-md-2">SLOC: <%- sloc.source %></span>
+		<span class="col-md-2">LOC: <%- sloc.total %></span>
+		<span class="col-md-2">Comments LOC: <%- sloc.comment %></span>
+		<span class="col-md-2">Empty LOC: <%- sloc.empty %></span>
+		<span class="col-md-2">Single LOC: <%- sloc.single %></span>
 	</div>
 </div>
 </script>
 
 <script type="text/template" id="file-container">
 	<div class="container">
-		<div class="row">Files</div>
-		<div class="row">Sort by:
-
+		<div class="row">Summary</div>
+		<div class="row"><%= totals %></div>
+		<div class="row">Sort by:</div>
+		<div class="row js-sortby">
+			<span class="col-md-2 btn btn-default" data-sortby="errors">Errors</span>
+			<span class="col-md-2 btn btn-default" data-sortby="warns">Warns</span>
+			<span class="col-md-2 btn btn-default" data-sortby="infos">Infos</span>
+			<span class="col-md-2 btn btn-default" data-sortby="functs">Functions count</span>
+			<span class="col-md-2 btn btn-default" data-sortby="sumcomp">Sum complexity</span>
+			<span class="col-md-2 btn btn-default" data-sortby="avgcomp">Avg complexity</span>
+			<span class="col-md-2 btn btn-default" data-sortby="medcomp">Median complexity</span>
+			<span class="col-md-2 btn btn-default" data-sortby="maxcomp">Max complexity</span>
+			<span class="col-md-2 btn btn-default" data-sortby="mincomp">Min complexity</span>
+			<span class="col-md-2 btn btn-default" data-sortby="sumstat">Sum statements</span>
+			<span class="col-md-2 btn btn-default" data-sortby="avgstat">Avg statements</span>
+			<span class="col-md-2 btn btn-default" data-sortby="medstat">Median statements</span>
+			<span class="col-md-2 btn btn-default" data-sortby="maxstat">Max statements</span>
+			<span class="col-md-2 btn btn-default" data-sortby="minstat">min statements</span>
+			<span class="col-md-2 btn btn-default" data-sortby="sloc">SLOC</span>
+			<span class="col-md-2 btn btn-default" data-sortby="loc">LOC</span>
+			<span class="col-md-2 btn btn-default" data-sortby="comments">Comments LOC</span>
+			<span class="col-md-2 btn btn-default" data-sortby="empty">Empty LOC</span>
 		</div>
-		{%= files%}
+		<div class="row">Files</div>
+		<%= files %>
 	</div>
 </script>
 
 <script type="text/template" id="file">
 	<div class="row">
-		<span class="col-md-12">filename: {%- filename %}</span>
-		<span class="col-md-2 {%- (error.length ? 'bg-danger' : '') %}">Errors: {%- error.length %}</span>
-		<span class="col-md-2 {%- (warn.length > 10 ? 'bg-danger' : '') %}" >Warns: {%- warn.length %}</span>
-		<span class="col-md-2 {%- (info.length > 50 ? 'bg-danger' : '') %}">Infos: {%- info.length %}</span>
-		<span class="col-md-2">Functions count: {%- functionCount %}</span>
-		<span class="col-md-2">Sum complexity: {%- complexity.sum %}</span>
-		<span class="col-md-2">Avg complexity: {%- complexity.avg.toFixed(2) %}</span>
-		<span class="col-md-2 ">Median complexity: {%- complexity.mediana %}</span>
-		<span class="col-md-2 {%- (complexity.max > 11 ? 'bg-danger' : '') %}">Max complexity: {%- complexity.max %}</span>
-		<span class="col-md-2">Min complexity: {%- complexity.min %}</span>
-		<span class="col-md-2">Sum statements: {%- statements.sum %}</span>
-		<span class="col-md-2">Avg statements: {%- statements.avg.toFixed(2) %}</span>
-		<span class="col-md-2">Median statements: {%- statements.mediana %}</span>
-		<span class="col-md-2">Max statements: {%- statements.max %}</span>
-		<span class="col-md-2">min statements: {%- statements.min %}</span>
-		<span class="col-md-2">SLOC: {%- sloc.source %}</span>
-		<span class="col-md-2">LOC: {%- sloc.total %}</span>
-		<span class="col-md-2">Comments LOC: {%- sloc.comment %}</span>
-		<span class="col-md-2">Empty LOC: {%- sloc.empty %}</span>
+		<span class="col-md-12">filename: <%- filename %></span>
+		<span class="col-md-2 <%- (error.length ? 'bg-danger' : '') %>">Errors: <%- error.length %></span>
+		<span class="col-md-2 <%- (warn.length > 10 ? 'bg-danger' : '') %>" >Warns: <%- warn.length %></span>
+		<span class="col-md-2 <%- (info.length > 50 ? 'bg-danger' : '') %>">Infos: <%- info.length %></span>
+		<span class="col-md-2">Functions count: <%- functionCount %></span>
+		<span class="col-md-2">Sum complexity: <%- complexity.sum %></span>
+		<span class="col-md-2">Avg complexity: <%- complexity.avg.toFixed(2) %></span>
+		<span class="col-md-2 ">Median complexity: <%- complexity.mediana %></span>
+		<span class="col-md-2 <%- (complexity.max > 11 ? 'bg-danger' : '') %>">Max complexity: <%- complexity.max %></span>
+		<span class="col-md-2">Min complexity: <%- complexity.min %></span>
+		<span class="col-md-2">Sum statements: <%- statements.sum %></span>
+		<span class="col-md-2">Avg statements: <%- statements.avg.toFixed(2) %></span>
+		<span class="col-md-2">Median statements: <%- statements.mediana %></span>
+		<span class="col-md-2">Max statements: <%- statements.max %></span>
+		<span class="col-md-2">min statements: <%- statements.min %></span>
+		<span class="col-md-2">SLOC: <%- sloc.source %></span>
+		<span class="col-md-2">LOC: <%- sloc.total %></span>
+		<span class="col-md-2">Comments LOC: <%- sloc.comment %></span>
+		<span class="col-md-2">Empty LOC: <%- sloc.empty %></span>
 	</div>
 	<hr/>
 </script>
@@ -149,14 +169,14 @@
 <script type="text/template" id="t-project">
 	<div data-dir="project">
 		<div>
-			Name: <input data-dir="generic.input" name="projectName" value="{%- projectName %}">
+			Name: <input data-dir="generic.input" name="projectName" value="<%- projectName %>">
 		</div>
 		<div>
-		ID: <input data-dir="generic.input" name="projectID" class="js-pr-name" value="{%- projectID %}" disabled="disabled">
+		ID: <input data-dir="generic.input" name="projectID" class="js-pr-name" value="<%- projectID %>" disabled="disabled">
 		</div>
 		<div>
 			Paths:
-			<textarea data-dir="generic.input" name='paths'>{%- paths %}</textarea>
+			<textarea data-dir="generic.input" name='paths'><%- paths %></textarea>
 		</div>
 		<div>
 			<button>Save</button>
