@@ -142,7 +142,7 @@
 
 <script type="text/template" id="file">
 	<div class="row">
-		<span class="col-md-12">filename: <%- filename %></span>
+		<span class="col-md-12"><b>Filename:</b> <i><%- filename %></i></span>
 		<span class="col-md-2 <%- (error.length ? 'bg-danger' : '') %>">Errors: <%- error.length %></span>
 		<span class="col-md-2 <%- (warn.length > 10 ? 'bg-danger' : '') %>" >Warns: <%- warn.length %></span>
 		<span class="col-md-2 <%- (info.length > 50 ? 'bg-danger' : '') %>">Infos: <%- info.length %></span>
@@ -156,7 +156,7 @@
 		<span class="col-md-2">Avg statements: <%- statements.avg.toFixed(2) %></span>
 		<span class="col-md-2">Median statements: <%- statements.mediana %></span>
 		<span class="col-md-2">Max statements: <%- statements.max %></span>
-		<span class="col-md-2">min statements: <%- statements.min %></span>
+		<span class="col-md-2">Min statements: <%- statements.min %></span>
 		<span class="col-md-2">SLOC: <%- sloc.source %></span>
 		<span class="col-md-2">LOC: <%- sloc.total %></span>
 		<span class="col-md-2">Comments LOC: <%- sloc.comment %></span>
