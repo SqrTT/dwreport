@@ -160,19 +160,37 @@ define('projects-tab', function (require, exports, module) {
 define('project-view', function (require, exports, module) {
 	var $ = require('$'),
 		_ = require('lodash'),
+		templater = require('templater'),
 		progress = require('progress-bar'),
 		records = [],
 		sortBy = '',
 		totals,
-		tpl = _.template($('#totals').html()),
-		tplFiles = _.template($('#file-container').html()),
-		file = _.template($('#file').html());
+		tpl = templater('totals'),
+		tplFiles = templater('file-container'),
+		file = templater('file');
 
 	module.exports = require('base.dir').extend({
+		initDir : function () {
+			var self = this;
+			if (self._super) {
+				self._super();
+			}
+			self.step = 1;
+			self.maxstep = 1;
+		},
+
 		events : function () {
 			this.ong('project.tab.click', 'onProjectClick');
 			this.on('click', '.js-sortby .btn', 'onSortBy');
+			this.on('click', '.js-detail', 'onDetail');
 		},
+		onDetail : function (event) {
+			var $elem = $(event.target);
+			this.showDetail($elem.data('fileid'), $elem.data('type'));
+ 		},
+ 		showDetail : function (fileid, type) {
+ 			require('detailsmodal').show(fileid, _.find(records, {filename: fileid})[type]);
+ 		},
 		onSortBy : function (event) {
 			var sortedArr;
 
@@ -226,8 +244,9 @@ define('project-view', function (require, exports, module) {
 		drawView : function (elements) {
 			var html = '',
 				fileHtml = '';
+
 			elements = elements || records;
-			$.each(elements, function (index, value) {
+			$.each(_.first(elements, 50), function (index, value) {
 				fileHtml += file(value);
 			});
 			html += tplFiles({files : fileHtml, totals : tpl(totals)});
@@ -259,6 +278,22 @@ define('project-view', function (require, exports, module) {
 			});
 		}
 	});
+});
+
+define('detailsmodal', function (require, exports) {
+	var _ = require('lodash'),
+		templater = require('templater'),
+		modal = require('modaldialog');
+
+	exports.show = function (filename, data) {
+		var html = _.reduce(data, function (result, value) {
+			value.evidence = value.evidence || '';
+			result += templater('detailsmodal-row', value);
+			return result;
+		}, '');
+		modal.show(templater('detailsmodal-container', {filename: filename, rows : html}));
+
+	}
 });
 
 define('progress-bar', function (require, exports) {
@@ -299,4 +334,77 @@ define('progress-bar', function (require, exports) {
 			count = 0;
 		}
 	};
+});
+define("templater", function(require, exports, module) {
+	var cache = {},
+		log = require('log'),
+		_ = require('lodash'),
+		curTpl;
+
+	module.exports = function(id, data) {
+
+		while (!cache[id]) {
+			curTpl = document.getElementById(id);
+			if (!curTpl) {
+				log.error("Can't find template : " + id);
+				return;
+			}
+			cache[id] = _.template(curTpl.innerHTML + "");
+		}
+
+		if (data) {
+			return cache[id](data);
+		}
+
+		return cache[id];
+	}
+})
+
+define("modaldialog", function (require, exports, module) {
+	"use strict";
+	var templater = require('templater'),
+		dirs = require('dirs'),
+		$ = require('$'),
+		$body = $(templater("modaldialog-tml", {content : ""})),
+		fadeTime = 500,
+		prefix = ".ng-modal-",
+		BODY = $("body"),
+		CLICK = "click",
+		$content = $body.find(prefix + "dialog-content"),
+		dialog;
+
+	$body.hide();
+
+	BODY.append($body);
+
+	BODY.on(CLICK, prefix + "overlay", function () {
+		dialog.hideAll();
+	});
+	BODY.on(CLICK, prefix + "close", function () {
+		dialog.hideAll();
+	});
+
+	$(document).on("dialog.updatesize", function () {
+		$content.height("auto");
+		$content.width("auto");
+	}).keyup(function(e) {
+		if (e.keyCode == 27) {
+			dialog.hideAll();
+		}   // esc
+	});
+
+	dialog = {
+		hideAll : function () {
+			$(prefix + "admin").stop().fadeOut(fadeTime, function () {
+				$body.hide();
+			});
+		},
+		show : function (content, noResize) {
+			$content.html($(content));
+
+			dirs.attachEl($content);
+			$body.stop().fadeIn(fadeTime);
+		}
+	};
+	return dialog;
 });

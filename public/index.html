@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
 		<link href="./static/dist/css/libs.min.css" rel="stylesheet">
+		<link href="./static/css/main.css" rel="stylesheet">
 
 		<title>Summary</title>
 
@@ -27,53 +28,6 @@
 
 		</div>
 
-
-		<!--
-		<table class="table" data-dirw="reporter">
-			<thead >
-				<th >File</th>
-				<th>Data</th>
-			</thead>
-			<tbody class="js-tbody">
-
-			</tbody>
-		</table>
-	-->
-
-<script type="text/template" id="tbl-row">
-	<tr >
-		<td ><%- filename %></td>
-		<td>
-			<% if (errors.length) { %>
-				<div class="bg-danger" data-dir="reporter-error">
-					<hidden class="errors">
-						<%= JSON.stringify(errors) %>
-
-					</hidden>
-					Total errors: <%- errors.length %>
-				</div>
-			<% } %>
-			<% if (warns.length) { %>
-			<div class="bg-warning" data-dir="reporter-warn">
-				<hidden  class="warns">
-					<%= JSON.stringify(warns) %>
-
-				</hidden>
-				Total warnings: <%- warns.length %>
-			</div>
-			<% } %>
-			<% if (infos.length) { %>
-			<div class="bg-info" data-dir="reporter-info">
-				<hidden  class="infos">
-					<%= JSON.stringify(infos) %>
-
-				</hidden>
-				Total infos: <%- infos.length %>
-			</div>
-			<% } %>
-		</td>
-	</tr>
-</script>
 <script type="text/template" id="t-project-tab">
 	<div class="col-md-1 btn btn-info js-tab" data-id="<%- projectID %>"> <%- projectName %> </div>
 </script>
@@ -110,30 +64,48 @@
 </div>
 </script>
 
+<script type="text/template" id="detailsmodal-row">
+	<div class="row">
+		<hr/>
+		<div>Line No: <%- line %></div>
+		<div>Evidence: <%- evidence  %></div>
+		<div>Reason: <%- reason %></div>
+	</div>
+</script>
+
+<script type="text/template" id="detailsmodal-container">
+<div class="b-detailsmodal-container">
+	<h4><b>Filename</b>: <%- filename %></h4>
+	<div class="container">
+		<%= rows %>
+	</div>
+<div>
+</script>
+
 <script type="text/template" id="file-container">
 	<div class="container">
 		<div class="row">Summary</div>
 		<div class="row"><%= totals %></div>
 		<div class="row">Sort by:</div>
 		<div class="row js-sortby">
-			<span class="col-md-2 btn btn-default" data-sortby="errors">Errors</span>
-			<span class="col-md-2 btn btn-default" data-sortby="warns">Warns</span>
-			<span class="col-md-2 btn btn-default" data-sortby="infos">Infos</span>
-			<span class="col-md-2 btn btn-default" data-sortby="functs">Functions count</span>
-			<span class="col-md-2 btn btn-default" data-sortby="sumcomp">Sum complexity</span>
-			<span class="col-md-2 btn btn-default" data-sortby="avgcomp">Avg complexity</span>
-			<span class="col-md-2 btn btn-default" data-sortby="medcomp">Median complexity</span>
-			<span class="col-md-2 btn btn-default" data-sortby="maxcomp">Max complexity</span>
-			<span class="col-md-2 btn btn-default" data-sortby="mincomp">Min complexity</span>
-			<span class="col-md-2 btn btn-default" data-sortby="sumstat">Sum statements</span>
-			<span class="col-md-2 btn btn-default" data-sortby="avgstat">Avg statements</span>
-			<span class="col-md-2 btn btn-default" data-sortby="medstat">Median statements</span>
-			<span class="col-md-2 btn btn-default" data-sortby="maxstat">Max statements</span>
-			<span class="col-md-2 btn btn-default" data-sortby="minstat">min statements</span>
-			<span class="col-md-2 btn btn-default" data-sortby="sloc">SLOC</span>
-			<span class="col-md-2 btn btn-default" data-sortby="loc">LOC</span>
-			<span class="col-md-2 btn btn-default" data-sortby="comments">Comments LOC</span>
-			<span class="col-md-2 btn btn-default" data-sortby="empty">Empty LOC</span>
+			<span class="col-md-2 btn btn-link" data-sortby="errors">Errors</span>
+			<span class="col-md-2 btn btn-link" data-sortby="warns">Warns</span>
+			<span class="col-md-2 btn btn-link" data-sortby="infos">Infos</span>
+			<span class="col-md-2 btn btn-link" data-sortby="functs">Functions count</span>
+			<span class="col-md-2 btn btn-link" data-sortby="sumcomp">Sum complexity</span>
+			<span class="col-md-2 btn btn-link" data-sortby="avgcomp">Avg complexity</span>
+			<span class="col-md-2 btn btn-link" data-sortby="medcomp">Median complexity</span>
+			<span class="col-md-2 btn btn-link" data-sortby="maxcomp">Max complexity</span>
+			<span class="col-md-2 btn btn-link" data-sortby="mincomp">Min complexity</span>
+			<span class="col-md-2 btn btn-link" data-sortby="sumstat">Sum statements</span>
+			<span class="col-md-2 btn btn-link" data-sortby="avgstat">Avg statements</span>
+			<span class="col-md-2 btn btn-link" data-sortby="medstat">Median statements</span>
+			<span class="col-md-2 btn btn-link" data-sortby="maxstat">Max statements</span>
+			<span class="col-md-2 btn btn-link" data-sortby="minstat">min statements</span>
+			<span class="col-md-2 btn btn-link" data-sortby="sloc">SLOC</span>
+			<span class="col-md-2 btn btn-link" data-sortby="loc">LOC</span>
+			<span class="col-md-2 btn btn-link" data-sortby="comments">Comments LOC</span>
+			<span class="col-md-2 btn btn-link" data-sortby="empty">Empty LOC</span>
 		</div>
 		<div class="row">Files</div>
 		<%= files %>
@@ -143,9 +115,21 @@
 <script type="text/template" id="file">
 	<div class="row">
 		<span class="col-md-12"><b>Filename:</b> <i><%- filename %></i></span>
-		<span class="col-md-2 <%- (error.length ? 'bg-danger' : '') %>">Errors: <%- error.length %></span>
-		<span class="col-md-2 <%- (warn.length > 10 ? 'bg-danger' : '') %>" >Warns: <%- warn.length %></span>
-		<span class="col-md-2 <%- (info.length > 50 ? 'bg-danger' : '') %>">Infos: <%- info.length %></span>
+		<span class="col-md-2">
+			<%= (error.length ? '<button class="btn btn-danger btn-xs js-detail" data-type="error" data-fileid=' + filename + '>' : '') %>
+				Errors: <%- error.length %>
+			<%= (error.length ? '</button>' : '') %>
+		</span>
+		<span class="col-md-2">
+			<%= (warn.length ? '<button class="btn btn-danger btn-xs js-detail" data-type="warn" data-fileid=' + filename + '>' : '') %> 
+				Warns: <%- warn.length %>
+			<%= (warn.length ? '</button>' : '') %>
+		</span>
+		<span class="col-md-2">
+			<%= (info.length ? '<button class="btn btn-danger btn-xs js-detail" data-type="info" data-fileid=' + filename + '>' : '') %> 
+				Infos: <%- info.length %>
+			<%= (info.length ? '</button>' : '') %>
+		</span>
 		<span class="col-md-2">Functions count: <%- functionCount %></span>
 		<span class="col-md-2">Sum complexity: <%- complexity.sum %></span>
 		<span class="col-md-2">Avg complexity: <%- complexity.avg.toFixed(2) %></span>
@@ -180,6 +164,18 @@
 		</div>
 		<div>
 			<button>Save</button>
+		</div>
+	</div>
+</script>
+<script type="text/template" id="modaldialog-tml">
+	<div style='display: none;' class='ng-modal-admin' >
+		<div class='ng-modal-overlay'></div>
+		<div class='ng-modal-dialog' >
+			<div class='ng-modal-close'>X</div>
+				<div class='ng-modal-dialog-content'  >
+					<%= content %>
+				</div>
+			</div>
 		</div>
 	</div>
 </script>
