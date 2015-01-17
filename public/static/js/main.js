@@ -12,19 +12,62 @@ define('paginator', function (require, exports, module) {
 			if (self._super) {
 				self._super.call(arguments);
 			}
-			self.totalRows = 0;
-			self.pageSize = 0;
-			self.currentPage = 1;
+			self.pageSize = 50;
+			self.currentPage = 0;
+			self.totalPages = 1;
+			self.rows = null;
+			self.template = null;
 		},
-		showContentPage : function (data) {
+		events : function () {
+			this.on('click', '.js-next', 'onNext');
+			this.on('click', '.js-back', 'onBack');
+			this.on('click', '.js-start', 'onStart');
+			this.on('click', '.js-end', 'onEnd');
+		},
+		onNext : function () {
+			if ((this.currentPage + 1) < this.totalPages) {
+				this.currentPage ++;
+				this.render();
+			}
+		},
+		onBack : function () {
+			if (this.currentPage > 0) {
+				this.currentPage --;
+				this.render();
+			}
+		},
+		onStart : function () {
+			this.currentPage = 0;
+			this.render();
+		},
+		onEnd : function () {
+			this.currentPage = this.totalPages - 1;
+			this.render();
+		},
+		render : function () {
 			var self = this,
 				content = '';
-			$.each(_.first(data.rows, data.pageSize || 100), function (index, value) {
-				content += templater(data.template)(value);
+
+			$.each(self.rows.slice(self.currentPage * self.pageSize, (self.currentPage + 1) * self.pageSize ), function (index, value) {
+				content += templater(self.template)(value);
 			});
 
-			self.$el.html(content);
+			self.$el.html(templater('paginator-tpl')({
+				content : content,
+				page : self.currentPage + 1,
+				total : self.totalPages
+			}));
+		},
+		showContentPage : function (data) {
+			var self = this;
 
+			self.totalRows = data.rows.length;
+			self.pageSize = data.pageSize;
+			self.totalPages = Math.round(self.totalRows / self.pageSize);
+			self.rows = data.rows;
+			self.template = data.template;
+
+			self.render();
 		}
 	});
 });
@@ -74,10 +117,10 @@ define('config-dir', function (require, exports, module) {
 				var tpl = templater('t-project'),
 					list = this.$el.find('.js-projectlist');
 
-				dirs.detachEl(list);
+				dirs.detachTree(list);
 				list.html(tpl({projectName: '', projectID : '', paths: ''}));
 				list.find('.js-pr-name').removeAttr('disabled');
-				dirs.attachEl(list);
+				dirs.attachTree(list);
 			},
 			showConfig : function () {
 				var tpl = templater('t-project'),
@@ -89,14 +132,14 @@ define('config-dir', function (require, exports, module) {
 					type : 'GET',
 					dataType : 'json'
 				}).success(function (data) {
-					dirs.detachEl(list);
+					dirs.detachTree(list);
 					_.each(data, function (prj) {
 						pList += tpl(prj);
 					});
 					list.show();
 					pList += '<button class="btn js-addnew">Add new</button>';
 					modaldialog.show(pList);
-					dirs.attachEl(list);
+					dirs.attachTree(list);
 				}).error(function () {
 					list.html('error happend!');
 				});
@@ -218,16 +261,18 @@ define('project-view', function (require, exports, module) {
 		},
 		drawView : function (elements) {
 			var html = '',
+				self = this,
+				$place = self.$el.find('.js-place'),
 				fileHtml = '';
 
 			html += tplFiles({totals : tpl(totals)});
-			dirs.detachTree(this.$el);
-			this.$el.html(html);
-			dirs.attachTree(this.$el);
-			this.callChilds('showContentPage', {
+			dirs.detachTree($place);
+			$place.html(html);
+			dirs.attachTree($place);
+			self.callChilds('showContentPage', {
 				rows : elements || records,
 				template: 'file',
-				pageSize: 50
+				pageSize: 10
 			});
 		},
 		onProjectClick : function (event) {
