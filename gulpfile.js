@@ -6,6 +6,7 @@ var minifyCSS = require('gulp-minify-css');
 var sourcemaps = require('gulp-sourcemaps');
 var smodular = require('smodular/gulp');
 
+
 var publicDir = 'public/static/';
 var src = {
   css: [publicDir +'css/**/*.css'],

@@ -1,58 +1,34 @@
 /* global define */
-define('reporter', function (require, exports, module) {
+
+define('paginator', function (require, exports, module) {
 	var defaultDir = require('base.dir'),
 		_ = require('lodash'),
+		templater = require('templater'),
 		$ = require('$');
 
 	module.exports = defaultDir.extend({
 		initDir : function () {
-			var rows = '',
-				tpl = _.template($('#tbl-row').html()),
-				self = this;
-
-			$.ajax({
-				url : './output.json',
-				type : 'GET',
-				dataType : 'json'
-			}).success(function (data) {
-				//debugger;
-				_.forEach(data, function (file) {
-					rows += tpl({
-						filename : file.file,
-						errors : file.error,
-						warns : file.warn,
-						infos : file.info
-					});
-				});
-				self.$el.find('.js-tbody').append(rows);
-			}).error(function () {
-				//debugger;
+			var self = this;
+			if (self._super) {
+				self._super.call(arguments);
+			}
+			self.totalRows = 0;
+			self.pageSize = 0;
+			self.currentPage = 1;
+		},
+		showContentPage : function (data) {
+			var self = this,
+				content = '';
+			$.each(_.first(data.rows, data.pageSize || 100), function (index, value) {
+				content += templater(data.template)(value);
 			});
+
+			self.$el.html(content);
+
 		}
 	});
 });
 
-
-
-define('projects', function (require, exports, module) {
-	var defaultDir = require('base.dir'),
-		_ = require('lodash'),
-		$ = require('$');
-
-	module.exports = defaultDir.extend({
-		initDir : function () {
-			$.ajax({
-				url : './projects.json',
-				type : 'GET',
-				dataType : 'json'
-			}).success(function () {
-				//debugger;
-			}).error(function () {
-				//debugger;
-			});
-		}
-	});
-});
 
 define('project', function (require, exports, module) {
 
@@ -80,6 +56,8 @@ define('config-dir', function (require, exports, module) {
 	var defaultDir = require('base.dir'),
 		dirs = require('dirs'),
 		_ = require('lodash'),
+		modaldialog = require('modaldialog'),
+		templater = require('templater'),
 		$ = require('$'),
 
 			configDir = defaultDir.extend({
@@ -93,17 +71,16 @@ define('config-dir', function (require, exports, module) {
 				this.on('click', '.js-addnew', 'addNew');
 			},
 			addNew : function () {
-				var tpl = _.template($('#t-project').html()),
+				var tpl = templater('t-project'),
 					list = this.$el.find('.js-projectlist');
 
 				dirs.detachEl(list);
 				list.html(tpl({projectName: '', projectID : '', paths: ''}));
 				list.find('.js-pr-name').removeAttr('disabled');
 				dirs.attachEl(list);
-				console.log(999);
 			},
 			showConfig : function () {
-				var tpl = _.template($('#t-project').html()),
+				var tpl = templater('t-project'),
 					pList = '',
 					list = this.$el.find('.js-projectlist');
 
@@ -118,7 +95,7 @@ define('config-dir', function (require, exports, module) {
 					});
 					list.show();
 					pList += '<button class="btn js-addnew">Add new</button>';
-					list.html(pList);
+					modaldialog.show(pList);
 					dirs.attachEl(list);
 				}).error(function () {
 					list.html('error happend!');
@@ -162,12 +139,12 @@ define('project-view', function (require, exports, module) {
 		_ = require('lodash'),
 		templater = require('templater'),
 		progress = require('progress-bar'),
+		dirs = require('dirs'),
 		records = [],
 		sortBy = '',
 		totals,
 		tpl = templater('totals'),
-		tplFiles = templater('file-container'),
-		file = templater('file');
+		tplFiles = templater('file-container');
 
 	module.exports = require('base.dir').extend({
 		initDir : function () {
@@ -175,8 +152,6 @@ define('project-view', function (require, exports, module) {
 			if (self._super) {
 				self._super();
 			}
-			self.step = 1;
-			self.maxstep = 1;
 		},
 
 		events : function () {
@@ -245,12 +220,15 @@ define('project-view', function (require, exports, module) {
 			var html = '',
 				fileHtml = '';
 
-			elements = elements || records;
-			$.each(_.first(elements, 50), function (index, value) {
-				fileHtml += file(value);
-			});
-			html += tplFiles({files : fileHtml, totals : tpl(totals)});
+			html += tplFiles({totals : tpl(totals)});
+			dirs.detachTree(this.$el);
 			this.$el.html(html);
+			dirs.attachTree(this.$el);
+			this.callChilds('showContentPage', {
+				rows : elements || records,
+				template: 'file',
+				pageSize: 50
+			});
 		},
 		onProjectClick : function (event) {
 			var $target = $(event.target),
@@ -366,7 +344,7 @@ define("modaldialog", function (require, exports, module) {
 		dirs = require('dirs'),
 		$ = require('$'),
 		$body = $(templater("modaldialog-tml", {content : ""})),
-		fadeTime = 500,
+		fadeTime = 200,
 		prefix = ".ng-modal-",
 		BODY = $("body"),
 		CLICK = "click",
@@ -397,12 +375,15 @@ define("modaldialog", function (require, exports, module) {
 		hideAll : function () {
 			$(prefix + "admin").stop().fadeOut(fadeTime, function () {
 				$body.hide();
+				dirs.detachTree($content);
 			});
 		},
 		show : function (content, noResize) {
+			
+
 			$content.html($(content));
 
-			dirs.attachEl($content);
+			dirs.attachTree($content);
 			$body.stop().fadeIn(fadeTime);
 		}
 	};
